@@ -4,12 +4,31 @@
   "description": "learning nodejs, express and mongodb",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon server.js"
+    "start": "SET NODE_ENV=development&& nodemon server.js",
+    "start:prod": "SET NODE_ENV=production&& nodemon server.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^7.0.0",
     "express": "^4.17.1",
-    "morgan": "^1.10.0"
+    "mongoose": "^5.10.11",
+    "morgan": "^1.10.0",
+    "slugify": "^1.4.6",
+    "validator": "^13.1.17"
+  },
+  "devDependencies": {
+    "eslint": "^5.16.0",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-config-prettier": "^4.1.0",
+    "eslint-plugin-import": "^2.17.2",
+    "eslint-plugin-jsx-a11y": "^6.2.1",
+    "eslint-plugin-node": "^8.0.1",
+    "eslint-plugin-prettier": "^3.0.1",
+    "eslint-plugin-react": "^7.21.5",
+    "prettier": "^1.17.1"
+  },
+  "engines": {
+    "node": ">=10.0.0"
   }
 }

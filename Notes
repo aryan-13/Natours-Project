@@ -1,0 +1,9 @@
+4 types of middleware in mongoose
+1.document - can act on the currently processed document
+2.query - find
+3.aggregate- lets us add hooks before or after an aggregation happpens
+4. model
+
+Slug is a string that we can put in the URL 
+
+////////////////////////////////////////////////////////////////
