@@ -1,13 +1,14 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
-const { default: validator } = require('validator');
-const validate = require('validator');
+const User = require('./userModel');
+// const { default: validator } = require('validator');
+const validator = require('validator');
 
 const tourSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      require: [true, 'A tour must have a name'],
+      required: [true, 'A tour must have a name'],
       unique: true,
       trim: true, // TRIM removes all the white spaces from the text. eg.-> "   This is a text full of space      "
       maxlength: [40, 'A tour name must have less or equal than 40 characters'],
@@ -16,15 +17,15 @@ const tourSchema = new mongoose.Schema(
     },
     duration: {
       type: Number,
-      require: [true, 'A tour must have a duration']
+      required: [true, 'A tour must have a duration']
     },
     maxGroupSize: {
       type: Number,
-      require: [true, 'A tour must have a group size']
+      required: [true, 'A tour must have a group size']
     },
     difficulty: {
       type: String,
-      require: [true, 'A tour must have a difficulty'],
+      required: [true, 'A tour must have a difficulty'],
       enum: {
         values: ['easy', 'medium', 'difficult'],
         message: 'Difficulty is either: easy, medium or difficult'
@@ -42,7 +43,7 @@ const tourSchema = new mongoose.Schema(
     },
     price: {
       type: Number,
-      require: true
+      required: true
     },
     priceDiscount: {
       type: Number,
@@ -57,7 +58,7 @@ const tourSchema = new mongoose.Schema(
     summary: {
       type: String,
       trim: true, // TRIM removes all the white spaces from the text. eg.-> "   This is a text full of space      "
-      require: [true, 'A tour must have a description']
+      required: [true, 'A tour must have a description']
     },
     description: {
       type: String,
@@ -65,7 +66,7 @@ const tourSchema = new mongoose.Schema(
     },
     imageCover: {
       type: String,
-      require: [true, 'A tour must have a cover image']
+      required: [true, 'A tour must have a cover image']
     },
     images: [String],
     createdAt: {
@@ -77,7 +78,32 @@ const tourSchema = new mongoose.Schema(
     secretTour: {
       type: Boolean,
       default: false
-    }
+    },
+    startLocation: {
+      // GeoJSON
+      type: {
+        type: String,
+        default: 'Point',
+        enum: ['Point']
+      },
+      coordinates: [Number],
+      address: String,
+      description: String
+    },
+    Locations: [
+      {
+        type: {
+          type: String,
+          default: 'Point',
+          enum: ['Point']
+        },
+        coordinates: [Number],
+        address: String,
+        description: String,
+        day: Number
+      }
+    ],
+    guides: Array
   },
   {
     toJSON: { virtuals: true },
@@ -93,6 +119,12 @@ tourSchema.virtual('durationWeeks').get(function() {
 // DOCUMENT MIDDLEWARE: runs before the .save() command and .create() command
 tourSchema.pre('save', function() {
   this.slug = slugify(this.name, { lower: true });
+  next();
+});
+
+tourSchema.pre('save', async function(next) {
+  const guidesPromises = this.guides.map(async id => await User.findById(id));
+  this.guides = await Promise.all(guidesPromises);
   next();
 });
 
@@ -116,14 +148,14 @@ tourSchema.pre(/^find/, function(next) {
 
 tourSchema.post(/^find/, function(docs, next) {
   console.log(`Query took ${Date.now() - this.start} milliseconds`);
-  console.log(docs);
+  // console.log(docs);
   next();
 });
 
 // AGGREGATION MIDDLEWARE
 tourSchema.pre('aggregate', function(next) {
   this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
-  console.log(this.pipeline());
+  // console.log(this.pipeline());
   next();
 });
 
